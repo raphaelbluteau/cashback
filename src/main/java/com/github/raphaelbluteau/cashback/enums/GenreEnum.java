@@ -9,4 +9,9 @@ public enum GenreEnum {
     public static GenreEnum getFrom(String value) {
         return GenreEnum.valueOf(value.toUpperCase());
     }
+
+    @Override
+    public String toString() {
+        return this.name().toLowerCase();
+    }
 }

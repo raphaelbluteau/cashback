@@ -1,6 +1,7 @@
 package com.github.raphaelbluteau.cashback.gateway.impl;
 
 import com.github.raphaelbluteau.cashback.config.SpotifyConfigurationProperties;
+import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import com.github.raphaelbluteau.cashback.gateway.SpotifyGateway;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatewayResponse;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayResponse;
@@ -49,10 +50,10 @@ public class SpotifyGatewayImpl implements SpotifyGateway {
     }
 
     @Override
-    public ArtistGatewayResponse getArtistByGenre(String accessToken, String genre, Integer limit) throws Exception {
+    public ArtistGatewayResponse getArtistByGenre(String accessToken, GenreEnum genre, Integer limit) throws Exception {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(properties.getSearchUrl())
-                .queryParam(QUERY, String.format(GENRE_FILTER, genre))
+                .queryParam(QUERY, String.format(GENRE_FILTER, genre.toString()))
                 .queryParam(TYPE, properties.getSearchType())
                 .queryParam(LIMIT, limit);
         String uri = uriBuilder.toUriString();

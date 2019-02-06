@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -23,24 +24,25 @@ public class AlbumUseCaseImpl implements AlbumUseCase {
     private final AlbumConverter albumConverter;
 
     @Override
-    public List<Album> getAlbumsByGenre(String genre, Integer limit) throws Exception {
+    public List<Album> getAlbumsByGenre(String accessToken, GenreEnum genre, Integer limit) throws Exception {
 
         List<ArtistAlbumGatewayItem> gatewayAlbums = new ArrayList<>();
-        String accessToken = spotifyGateway.getAuthorization().getAccessToken();
         ArtistGatewayResponse artistGatewayResponse = spotifyGateway.getArtistByGenre(accessToken, genre, limit);
         artistGatewayResponse.getItems().forEach(a -> gatewayAlbums.addAll(spotifyGateway
                 .getAlbumsByArtist(accessToken, a.getId(), 1).getItems()));
 
-        List<Album> albums = albumConverter.toUseCase(gatewayAlbums, GenreEnum.getFrom(genre));
+        List<Album> albums = albumConverter.toUseCase(gatewayAlbums, genre);
         albums.forEach(a -> a.setPrice(randomPrice()));
 
         return albums;
     }
 
     private BigDecimal randomPrice() {
+
         double leftLimit = 20D;
         double rightLimit = 90D;
-        BigDecimal.valueOf(leftLimit + new Random().nextDouble() * (rightLimit - leftLimit));
-        return BigDecimal.valueOf(leftLimit + new Random().nextDouble() * (rightLimit - leftLimit));
+        BigDecimal price = BigDecimal.valueOf(leftLimit + new Random().nextDouble() * (rightLimit - leftLimit));
+
+        return price.setScale(2, RoundingMode.CEILING);
     }
 }

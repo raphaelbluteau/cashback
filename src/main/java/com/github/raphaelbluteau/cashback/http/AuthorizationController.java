@@ -19,6 +19,8 @@ public class AuthorizationController {
     @GetMapping
     public AuthorizationHttpResponse getAccessToken() {
 
+        // TODO tratar as exceções
+
         return converter.toResponse(service.getAuthorization());
     }
 }

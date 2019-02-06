@@ -1,23 +1,22 @@
-package com.github.raphaelbluteau.cashback.usecase.data.response;
+package com.github.raphaelbluteau.cashback.http.data.response;
 
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class Album {
+@AllArgsConstructor
+public class AlbumHttpResponse {
 
-    private String id;
+    private Long id;
+
     private String name;
-    private GenreEnum genre;
+
     private BigDecimal price;
-    private List<Artist> artists;
+
+    private GenreEnum genre;
 }

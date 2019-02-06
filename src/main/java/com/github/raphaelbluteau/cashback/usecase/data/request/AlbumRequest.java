@@ -1,4 +1,4 @@
-package com.github.raphaelbluteau.cashback.usecase.data.response;
+package com.github.raphaelbluteau.cashback.usecase.data.request;
 
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import lombok.AllArgsConstructor;
@@ -7,17 +7,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class Album {
+public class AlbumRequest {
 
-    private String id;
+    private Long id;
+
     private String name;
-    private GenreEnum genre;
+
     private BigDecimal price;
-    private List<Artist> artists;
+
+    private GenreEnum genre;
 }
