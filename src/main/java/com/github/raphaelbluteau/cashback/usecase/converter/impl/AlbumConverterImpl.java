@@ -8,6 +8,8 @@ import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.request.AlbumRequest;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -49,9 +51,6 @@ public class AlbumConverterImpl implements AlbumConverter {
 
         return AlbumRequest.builder()
                 .id(request.getId())
-                .genre(request.getGenre())
-                .name(request.getName())
-                .price(request.getPrice())
                 .build();
     }
 
@@ -63,6 +62,31 @@ public class AlbumConverterImpl implements AlbumConverter {
         }
 
         return albums.stream().map(a -> toEntity(a, genre)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Album toUseCase(AlbumEntity albumEntity) {
+        if (isNull(albumEntity)) {
+            return null;
+        }
+
+        return Album.builder()
+                .id(String.valueOf(albumEntity.getId()))
+                .name(albumEntity.getName())
+                .price(albumEntity.getPrice())
+                .genre(albumEntity.getGenre())
+                .build();
+    }
+
+    @Override
+    public Page<Album> toUseCase(Page<AlbumEntity> albumEntity) {
+
+        if (albumEntity.isEmpty()) {
+            return Page.empty();
+        }
+
+        List<Album> collection = albumEntity.stream().map(this::toUseCase).collect(Collectors.toList());
+        return new PageImpl<>(collection, albumEntity.getPageable(), albumEntity.getTotalElements());
     }
 
     private AlbumEntity toEntity(Album album, GenreEnum genre) {

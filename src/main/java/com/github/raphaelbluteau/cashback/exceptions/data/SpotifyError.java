@@ -1,4 +1,4 @@
-package com.github.raphaelbluteau.cashback.http.data.request;
+package com.github.raphaelbluteau.cashback.exceptions.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlbumHttpRequest {
+@Builder
+public class SpotifyError {
 
-    private Long id;
+    private int status;
+
+    private String message;
+
 }

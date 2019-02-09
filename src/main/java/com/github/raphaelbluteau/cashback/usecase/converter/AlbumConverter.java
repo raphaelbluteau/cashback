@@ -6,12 +6,17 @@ import com.github.raphaelbluteau.cashback.gateway.repository.entity.AlbumEntity;
 import com.github.raphaelbluteau.cashback.http.data.request.AlbumHttpRequest;
 import com.github.raphaelbluteau.cashback.usecase.data.request.AlbumRequest;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface AlbumConverter {
 
     List<Album> toUseCase(List<ArtistAlbumGatewayItem> albums, GenreEnum genre);
+
+    Album toUseCase(AlbumEntity albumEntity);
+
+    Page<Album> toUseCase(Page<AlbumEntity> albumEntity);
 
     List<AlbumRequest> toUseCaseRequest(List<AlbumHttpRequest> request);
 

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -15,6 +16,8 @@ import java.util.List;
 public class Sale {
 
     private Long id;
+
+    private LocalDateTime createdAt;
 
     private BigDecimal cashback;
 

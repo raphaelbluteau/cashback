@@ -2,6 +2,9 @@ package com.github.raphaelbluteau.cashback.gateway.impl;
 
 import com.github.raphaelbluteau.cashback.config.SpotifyConfigurationProperties;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
+import com.github.raphaelbluteau.cashback.exceptions.data.GatewayException;
+import com.github.raphaelbluteau.cashback.exceptions.data.SpotifyAuthException;
+import com.github.raphaelbluteau.cashback.exceptions.data.SpotifyException;
 import com.github.raphaelbluteau.cashback.gateway.SpotifyGateway;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatewayResponse;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayResponse;
@@ -14,12 +17,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.persistence.MapKey;
-
-import static java.util.Objects.isNull;
+import java.util.Objects;
 
 @Component
 @Log
@@ -41,49 +43,57 @@ public class SpotifyGatewayImpl implements SpotifyGateway {
     private static final String MARKET = "market";
 
     @Override
-    public AuthorizationGatewayResponse getAuthorization() {
+    public AuthorizationGatewayResponse getAuthorization() throws SpotifyAuthException, GatewayException {
 
-        ResponseEntity<AuthorizationGatewayResponse> responseEntity = restTemplate.exchange(properties.getAuthUrl(),
-                HttpMethod.POST, buildAuthRequestHttpEntity(), AuthorizationGatewayResponse.class);
+        try {
+            ResponseEntity<AuthorizationGatewayResponse> responseEntity = restTemplate.exchange(properties.getAuthUrl(),
+                    HttpMethod.POST, buildAuthRequestHttpEntity(), AuthorizationGatewayResponse.class);
 
-        return responseEntity.getBody();
+            return responseEntity.getBody();
+        } catch (HttpClientErrorException response) {
+            throw new SpotifyAuthException(response.getLocalizedMessage(), response.getCause(), response.getResponseBodyAsString(), response.getRawStatusCode());
+        } catch (HttpServerErrorException response) {
+            throw new GatewayException(response.getLocalizedMessage(), response.getCause(), response.getRawStatusCode());
+        }
     }
 
     @Override
-    public ArtistGatewayResponse getArtistByGenre(String accessToken, GenreEnum genre, Integer limit) throws Exception {
+    public ArtistGatewayResponse getArtistByGenre(String accessToken, GenreEnum genre, Integer limit) throws SpotifyException, GatewayException {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(properties.getSearchUrl())
                 .queryParam(QUERY, String.format(GENRE_FILTER, genre.toString()))
                 .queryParam(TYPE, properties.getSearchType())
                 .queryParam(LIMIT, limit);
         String uri = uriBuilder.toUriString();
-        ResponseEntity<ArtistGatewayResponseWrapper> responseEntity = restTemplate.exchange(uri, HttpMethod.GET,
-                buildHttpEntity(accessToken), ArtistGatewayResponseWrapper.class);
+        try {
+            ResponseEntity<ArtistGatewayResponseWrapper> responseEntity = restTemplate.exchange(uri, HttpMethod.GET,
+                    buildHttpEntity(accessToken), ArtistGatewayResponseWrapper.class);
 
-        if (isNull(responseEntity.getBody())) {
-            throw new Exception("Empty response body");
+            return Objects.requireNonNull(responseEntity.getBody()).getArtists();
+
+        } catch (HttpClientErrorException response) {
+            throw new SpotifyException(response.getLocalizedMessage(), response.getCause(), response.getResponseBodyAsString(), response.getRawStatusCode());
+        } catch (HttpServerErrorException response) {
+            throw new GatewayException(response.getLocalizedMessage(), response.getCause(), response.getRawStatusCode());
         }
-
-        return responseEntity.getBody().getArtists();
     }
 
     @Override
-    public ArtistAlbumGatewayResponse getAlbumsByArtist(String accessToken, String artistId, Integer limit) {
+    public ArtistAlbumGatewayResponse getAlbumsByArtist(String accessToken, String artistId, Integer limit) throws SpotifyException {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(properties.getArtistsUrl())
                 .path(artistId.concat("/"))
                 .path(ALBUMS)
                 .queryParam(LIMIT, limit);
         String uri = uriBuilder.toUriString();
-        ResponseEntity<ArtistAlbumGatewayResponse> responseEntity = null;
+        ResponseEntity<ArtistAlbumGatewayResponse> responseEntity;
         try {
             responseEntity = restTemplate.exchange(uri, HttpMethod.GET,
                     buildHttpEntity(accessToken), ArtistAlbumGatewayResponse.class);
+            return responseEntity.getBody();
         } catch (HttpClientErrorException e) {
-            log.info(e.getResponseBodyAsString());
+            throw new SpotifyException(e.getLocalizedMessage(), e.getCause(), e.getResponseBodyAsString(), e.getRawStatusCode());
         }
-
-        return responseEntity.getBody();
     }
 
     private MultiValueMap<String, String> buildAuthRequestBody() {

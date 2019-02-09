@@ -1,15 +1,17 @@
 package com.github.raphaelbluteau.cashback.http;
 
+import com.github.raphaelbluteau.cashback.enums.GenreEnum;
+import com.github.raphaelbluteau.cashback.exceptions.data.ResourceNotFoundException;
+import com.github.raphaelbluteau.cashback.http.converter.AlbumHttpResponseConverter;
+import com.github.raphaelbluteau.cashback.http.data.response.AlbumHttpResponse;
 import com.github.raphaelbluteau.cashback.usecase.AlbumUseCase;
-import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Collections;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/albums")
@@ -17,15 +19,18 @@ import java.util.List;
 public class AlbumController {
 
     private final AlbumUseCase albumUseCase;
+    private final AlbumHttpResponseConverter albumHttpResponseConverter;
     private final Environment env;
 
     @GetMapping
-    public List<Album> getAlbums() throws Exception {
+    public Page<AlbumHttpResponse> getAlbums(final @PageableDefault(size = 20, direction = Sort.Direction.ASC, sort = "name") Pageable pageable, @RequestParam GenreEnum genre) {
 
-        // TODO filtrar albums por genero e ordenando de forma crescente pelo nome
-        // TODO retornar com paginação
-        // TODO convert albums
+        return albumHttpResponseConverter.toResponse(albumUseCase.getAlbumsByGenre(genre, pageable));
+    }
 
-        return Collections.emptyList();
+    @GetMapping("/{id}")
+    public AlbumHttpResponse getAlbum(@PathVariable Long id) throws ResourceNotFoundException {
+
+        return albumHttpResponseConverter.toResponse(albumUseCase.findById(id));
     }
 }

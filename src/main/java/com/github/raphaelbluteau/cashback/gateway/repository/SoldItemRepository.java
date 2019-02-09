@@ -1,7 +1,7 @@
 package com.github.raphaelbluteau.cashback.gateway.repository;
 
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.SoldItemEntity;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface SoldItemRepository extends CrudRepository<SoldItemEntity, Long> {
+public interface SoldItemRepository extends PagingAndSortingRepository<SoldItemEntity, Long> {
 }

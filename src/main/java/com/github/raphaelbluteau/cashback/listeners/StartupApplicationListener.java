@@ -1,8 +1,11 @@
 package com.github.raphaelbluteau.cashback.listeners;
 
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
+import com.github.raphaelbluteau.cashback.exceptions.data.GatewayException;
+import com.github.raphaelbluteau.cashback.exceptions.data.SpotifyAuthException;
 import com.github.raphaelbluteau.cashback.gateway.repository.AlbumRepository;
 import com.github.raphaelbluteau.cashback.gateway.repository.CashbackParametersRepository;
+import com.github.raphaelbluteau.cashback.gateway.repository.SaleRepository;
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.CashbackParametersEntity;
 import com.github.raphaelbluteau.cashback.usecase.AlbumUseCase;
 import com.github.raphaelbluteau.cashback.usecase.AuthorizationUseCase;
@@ -32,6 +35,7 @@ public class StartupApplicationListener implements
     private final Environment env;
     private final CashbackParametersRepository cashbackParametersRepository;
     private final AlbumRepository albumRepository;
+    private final SaleRepository saleRepository;
     private final AlbumConverter albumConverter;
 
     @Override
@@ -42,10 +46,16 @@ public class StartupApplicationListener implements
         Set<GenreEnum> genres = new HashSet<>();
         cashbackParametersRepository.findAll().forEach(c -> genres.add(c.getGenre()));
 
-        String accessToken = authorizationUseCase.getAuthorization().getAccessToken();
+        String accessToken = null;
+        try {
+            accessToken = authorizationUseCase.getAuthorization().getAccessToken();
+        } catch (GatewayException | SpotifyAuthException e) {
+            log.warning(e.getLocalizedMessage());
+        }
+        String finalAccessToken = accessToken;
         genres.forEach(genre -> {
             try {
-                List<Album> albumsByGenre = albumUseCase.getAlbumsByGenre(accessToken, genre, Integer.valueOf(env.getProperty("albums.limit", "50")));
+                List<Album> albumsByGenre = albumUseCase.getAlbumsByGenre(finalAccessToken, genre, Integer.valueOf(env.getProperty("albums.limit", "50")));
                 albumRepository.saveAll(albumConverter.toEntity(albumsByGenre, genre));
             } catch (Exception e) {
                 log.info(e.getLocalizedMessage());
@@ -57,6 +67,7 @@ public class StartupApplicationListener implements
 
     private void databasesFreshStartup() {
 
+        saleRepository.deleteAll();
         albumRepository.deleteAll();
         cashbackParametersRepository.deleteAll();
     }
@@ -72,32 +83,32 @@ public class StartupApplicationListener implements
         cashbackParametersRepository.save(CashbackParametersEntity.builder()
                 .genre(GenreEnum.POP)
                 .dayOfWeek(DayOfWeek.MONDAY)
-                .percentage(BigDecimal.valueOf(25))
+                .percentage(BigDecimal.valueOf(7))
                 .build());
         cashbackParametersRepository.save(CashbackParametersEntity.builder()
                 .genre(GenreEnum.POP)
                 .dayOfWeek(DayOfWeek.TUESDAY)
-                .percentage(BigDecimal.valueOf(25))
+                .percentage(BigDecimal.valueOf(6))
                 .build());
         cashbackParametersRepository.save(CashbackParametersEntity.builder()
                 .genre(GenreEnum.POP)
                 .dayOfWeek(DayOfWeek.WEDNESDAY)
-                .percentage(BigDecimal.valueOf(25))
+                .percentage(BigDecimal.valueOf(2))
                 .build());
         cashbackParametersRepository.save(CashbackParametersEntity.builder()
                 .genre(GenreEnum.POP)
                 .dayOfWeek(DayOfWeek.THURSDAY)
-                .percentage(BigDecimal.valueOf(25))
+                .percentage(BigDecimal.valueOf(10))
                 .build());
         cashbackParametersRepository.save(CashbackParametersEntity.builder()
                 .genre(GenreEnum.POP)
                 .dayOfWeek(DayOfWeek.FRIDAY)
-                .percentage(BigDecimal.valueOf(25))
+                .percentage(BigDecimal.valueOf(15))
                 .build());
         cashbackParametersRepository.save(CashbackParametersEntity.builder()
                 .genre(GenreEnum.POP)
                 .dayOfWeek(DayOfWeek.SATURDAY)
-                .percentage(BigDecimal.valueOf(25))
+                .percentage(BigDecimal.valueOf(20))
                 .build());
 
         // MPB
