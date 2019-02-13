@@ -1,5 +1,7 @@
 # Cashback API using Spotify Web API
 
+[![Build Status](https://travis-ci.com/raphaelbluteau/cashback.svg?branch=master)](https://travis-ci.com/raphaelbluteau/cashback)
+
 To build and run the project, use Gradle:
 ```sh
 gradle bootRun
