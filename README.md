@@ -1,6 +1,7 @@
 # Cashback API using Spotify Web API
 
 [![Build Status](https://travis-ci.com/raphaelbluteau/cashback.svg?branch=master)](https://travis-ci.com/raphaelbluteau/cashback)
+[![Coverage Status](https://coveralls.io/repos/github/raphaelbluteau/cashback/badge.svg?branch=master)](https://coveralls.io/github/raphaelbluteau/cashback?branch=master)
 [![BCH compliance](https://bettercodehub.com/edge/badge/raphaelbluteau/cashback?branch=master)](https://bettercodehub.com/)
 
 To build and run the project, use Gradle:
