@@ -4,6 +4,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/raphaelbluteau/cashback/badge.svg?branch=master)](https://coveralls.io/github/raphaelbluteau/cashback?branch=master)
 [![BCH compliance](https://bettercodehub.com/edge/badge/raphaelbluteau/cashback?branch=master)](https://bettercodehub.com/)
 
+This Spring Boot API collects some data from Spotify Web API and provides endpoints to sell albums and calculate cashback over every operation.
+
 To build and run the project, use Gradle:
 ```sh
 gradle bootRun
