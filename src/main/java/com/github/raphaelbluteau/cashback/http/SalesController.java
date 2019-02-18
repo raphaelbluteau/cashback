@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,6 +26,7 @@ public class SalesController {
     private final SalesHttpResponseConverter salesHttpResponseConverter;
     private final AlbumConverter albumConverter;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public SaleHttpResponse order(@RequestBody @Valid List<AlbumHttpRequest> request) throws ResourceNotFoundException {
 
