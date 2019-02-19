@@ -56,7 +56,7 @@ public class SalesUseCaseImpl implements SalesUseCase {
             CashbackParametersEntity cashbackParameters = cashbackParametersRepository
                     .findByDayOfWeekAndGenre(dayOfWeek, album.getGenre());
             BigDecimal cashback = (cashbackParameters.getPercentage()
-                    .divide(BigDecimal.valueOf(100), RoundingMode.UNNECESSARY))
+                    .divide(BigDecimal.valueOf(100), RoundingMode.FLOOR))
                     .multiply(album.getPrice());
             soldItems.add(SoldItemEntity.builder()
                     .album(album)
