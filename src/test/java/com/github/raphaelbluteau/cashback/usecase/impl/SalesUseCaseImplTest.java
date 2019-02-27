@@ -12,6 +12,7 @@ import com.github.raphaelbluteau.cashback.gateway.repository.entity.SaleEntity;
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.SoldItemEntity;
 import com.github.raphaelbluteau.cashback.usecase.SalesUseCase;
 import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.usecase.converter.ArtistConverter;
 import com.github.raphaelbluteau.cashback.usecase.converter.SaleConverter;
 import com.github.raphaelbluteau.cashback.usecase.converter.SoldItemConverter;
 import com.github.raphaelbluteau.cashback.usecase.converter.impl.AlbumConverterImpl;
@@ -48,6 +49,8 @@ public class SalesUseCaseImplTest {
     @MockBean
     private AlbumRepository albumRepository;
     @MockBean
+    private ArtistConverter artistConverter;
+    @MockBean
     private CashbackParametersRepository cashbackParametersRepository;
     @MockBean
     private SaleRepository saleRepository;
@@ -60,7 +63,7 @@ public class SalesUseCaseImplTest {
     @Before
     public void setUp() {
 
-        AlbumConverter albumConverter = new AlbumConverterImpl();
+        AlbumConverter albumConverter = new AlbumConverterImpl(artistConverter);
         SoldItemConverter soldItemConverter = new SoldItemConverterImpl(albumConverter);
         SaleConverter saleConverter = new SaleConverterImpl(soldItemConverter);
         salesUseCase = new SalesUseCaseImpl(albumRepository, cashbackParametersRepository,

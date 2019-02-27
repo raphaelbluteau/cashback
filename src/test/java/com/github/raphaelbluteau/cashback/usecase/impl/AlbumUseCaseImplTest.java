@@ -9,10 +9,11 @@ import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatew
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayItem;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayResponse;
 import com.github.raphaelbluteau.cashback.gateway.impl.SpotifyGatewayImpl;
-import com.github.raphaelbluteau.cashback.gateway.repository.AlbumRepository;
-import com.github.raphaelbluteau.cashback.gateway.repository.entity.AlbumEntity;
+import com.github.raphaelbluteau.cashback.service.AlbumService;
+import com.github.raphaelbluteau.cashback.service.impl.AlbumServiceImpl;
 import com.github.raphaelbluteau.cashback.usecase.AlbumUseCase;
 import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.usecase.converter.ArtistConverter;
 import com.github.raphaelbluteau.cashback.usecase.converter.impl.AlbumConverterImpl;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import org.assertj.core.api.Assertions;
@@ -23,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
@@ -37,16 +39,18 @@ public class AlbumUseCaseImplTest {
     private AlbumUseCase albumUseCase;
 
     @Mock
-    private AlbumRepository repository;
+    private AlbumService albumService;
     @Mock
     private SpotifyGateway spotifyGateway;
+    @Mock
+    private ArtistConverter artistConverter;
 
     @Before
     public void setUp() throws Exception {
-        AlbumConverter albumConverter = new AlbumConverterImpl();
-        repository = Mockito.mock(AlbumRepository.class);
+        AlbumConverter albumConverter = new AlbumConverterImpl(artistConverter);
+        albumService = Mockito.mock(AlbumServiceImpl.class);
         spotifyGateway = Mockito.mock(SpotifyGatewayImpl.class);
-        albumUseCase = new AlbumUseCaseImpl(spotifyGateway, albumConverter, repository);
+        albumUseCase = new AlbumUseCaseImpl(spotifyGateway, albumService, albumConverter);
     }
 
     @Test
@@ -68,10 +72,10 @@ public class AlbumUseCaseImplTest {
     @Test
     public void getAlbumsByGenre() {
 
-        Mockito.when(repository.findAllByGenreOrderByName(any(GenreEnum.class), any()))
+        Mockito.when(albumService.getAlbumsByGenre(any(GenreEnum.class), any(Pageable.class)))
                 .thenReturn(getPage());
 
-        Page<Album> results = albumUseCase.getAlbumsByGenre(GenreEnum.POP, null);
+        Page<Album> results = albumUseCase.getAlbumsByGenre(GenreEnum.POP, Pageable.unpaged());
         Assertions.assertThat(results).isNotEmpty();
         Assertions.assertThat(results.getTotalElements()).isEqualTo(1);
         Album album = results.iterator().next();
@@ -83,10 +87,10 @@ public class AlbumUseCaseImplTest {
     public void findById() {
     }
 
-    private Page<AlbumEntity> getPage() {
+    private Page<com.github.raphaelbluteau.cashback.service.data.Album> getPage() {
 
-        return new PageImpl<>(Collections.singletonList(AlbumEntity.builder()
-                .id(1L)
+        return new PageImpl<>(Collections.singletonList(com.github.raphaelbluteau.cashback.service.data.Album.builder()
+                .id("1")
                 .name("Lorem ipsum")
                 .price(BigDecimal.TEN)
                 .genre(GenreEnum.POP)

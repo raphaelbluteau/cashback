@@ -5,6 +5,7 @@ import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatew
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.AlbumEntity;
 import com.github.raphaelbluteau.cashback.http.data.request.AlbumHttpRequest;
 import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.usecase.converter.ArtistConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.request.AlbumRequest;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ import static java.util.Objects.isNull;
 @Component
 @RequiredArgsConstructor
 public class AlbumConverterImpl implements AlbumConverter {
+
+    private final ArtistConverter artistConverter;
 
     @Override
     public List<Album> toUseCase(List<ArtistAlbumGatewayItem> albums, GenreEnum genre) {
@@ -79,6 +82,22 @@ public class AlbumConverterImpl implements AlbumConverter {
     }
 
     @Override
+    public Album toUseCase(com.github.raphaelbluteau.cashback.service.data.Album album) {
+
+        if (isNull(album)) {
+            return null;
+        }
+
+        return Album.builder()
+                .id(album.getId())
+                .name(album.getName())
+                .genre(album.getGenre())
+                .price(album.getPrice())
+                .artists(artistConverter.toUseCase(album.getArtists()))
+                .build();
+    }
+
+    @Override
     public Page<Album> toUseCase(Page<AlbumEntity> albumEntity) {
 
         if (albumEntity.isEmpty()) {
@@ -87,6 +106,19 @@ public class AlbumConverterImpl implements AlbumConverter {
 
         List<Album> collection = albumEntity.stream().map(this::toUseCase).collect(Collectors.toList());
         return new PageImpl<>(collection, albumEntity.getPageable(), albumEntity.getTotalElements());
+    }
+
+    @Override
+    public Page<Album> toUseCasePage(Page<com.github.raphaelbluteau.cashback.service.data.Album> albums) {
+
+        if (albums.isEmpty()) {
+            return Page.empty();
+        }
+
+
+        List<Album> collection = albums.stream().map(this::toUseCase).collect(Collectors.toList());
+
+        return new PageImpl<>(collection, albums.getPageable(), albums.getTotalElements());
     }
 
     private AlbumEntity toEntity(Album album, GenreEnum genre) {
