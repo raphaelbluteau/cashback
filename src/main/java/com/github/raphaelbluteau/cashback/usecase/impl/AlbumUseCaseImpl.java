@@ -8,8 +8,7 @@ import com.github.raphaelbluteau.cashback.gateway.SpotifyGateway;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatewayItem;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayItem;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayResponse;
-import com.github.raphaelbluteau.cashback.gateway.repository.AlbumRepository;
-import com.github.raphaelbluteau.cashback.gateway.repository.entity.AlbumEntity;
+import com.github.raphaelbluteau.cashback.service.AlbumService;
 import com.github.raphaelbluteau.cashback.usecase.AlbumUseCase;
 import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
@@ -22,7 +21,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 @Component
@@ -30,8 +28,8 @@ import java.util.Random;
 public class AlbumUseCaseImpl implements AlbumUseCase {
 
     private final SpotifyGateway spotifyGateway;
+    private final AlbumService albumService;
     private final AlbumConverter albumConverter;
-    private final AlbumRepository albumRepository;
     private static final String NOT_FOUND_MESSAGE = "Album for id %s not found";
 
     @Override
@@ -52,15 +50,13 @@ public class AlbumUseCaseImpl implements AlbumUseCase {
 
     @Override
     public Page<Album> getAlbumsByGenre(GenreEnum genre, Pageable pageable) {
-        return albumConverter.toUseCase(albumRepository.findAllByGenreOrderByName(genre, pageable));
+        return albumConverter.toUseCasePage(albumService.getAlbumsByGenre(genre, pageable));
     }
 
     @Override
     public Album findById(Long id) throws ResourceNotFoundException {
 
-        Optional<AlbumEntity> optionalAlbumEntity = albumRepository.findById(id);
-
-        return albumConverter.toUseCase(optionalAlbumEntity.orElseThrow(() ->
+        return albumConverter.toUseCase(albumService.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(String.format(NOT_FOUND_MESSAGE, String.valueOf(id)))));
     }
 

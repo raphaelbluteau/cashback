@@ -5,6 +5,7 @@ import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatew
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.AlbumEntity;
 import com.github.raphaelbluteau.cashback.http.data.request.AlbumHttpRequest;
 import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.usecase.converter.ArtistConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.request.AlbumRequest;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import org.assertj.core.api.Assertions;
@@ -12,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
@@ -25,11 +27,13 @@ import static org.junit.Assert.*;
 public class AlbumConverterImplTest {
 
     private AlbumConverter albumConverter;
+    @Mock
+    private ArtistConverter artistConverter;
 
     @Before
     public void setUp() {
 
-        albumConverter = new AlbumConverterImpl();
+        albumConverter = new AlbumConverterImpl(artistConverter);
     }
 
     @Test

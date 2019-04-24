@@ -16,7 +16,11 @@ public interface AlbumConverter {
 
     Album toUseCase(AlbumEntity albumEntity);
 
+    Album toUseCase(com.github.raphaelbluteau.cashback.service.data.Album album);
+
     Page<Album> toUseCase(Page<AlbumEntity> albumEntity);
+
+    Page<Album> toUseCasePage(Page<com.github.raphaelbluteau.cashback.service.data.Album> albums);
 
     List<AlbumRequest> toUseCaseRequest(List<AlbumHttpRequest> request);
 
