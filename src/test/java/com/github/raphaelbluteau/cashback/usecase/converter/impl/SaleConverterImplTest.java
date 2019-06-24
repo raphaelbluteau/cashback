@@ -1,11 +1,12 @@
 package com.github.raphaelbluteau.cashback.usecase.converter.impl;
 
+import com.github.raphaelbluteau.cashback.converter.SaleConverter;
+import com.github.raphaelbluteau.cashback.converter.SoldItemConverter;
+import com.github.raphaelbluteau.cashback.converter.impl.SaleConverterImpl;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.AlbumEntity;
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.SaleEntity;
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.SoldItemEntity;
-import com.github.raphaelbluteau.cashback.usecase.converter.SaleConverter;
-import com.github.raphaelbluteau.cashback.usecase.converter.SoldItemConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Sale;
 import com.github.raphaelbluteau.cashback.usecase.data.response.SoldItem;

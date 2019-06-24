@@ -1,7 +1,7 @@
 package com.github.raphaelbluteau.cashback.http;
 
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
-import com.github.raphaelbluteau.cashback.http.converter.AlbumHttpResponseConverter;
 import com.github.raphaelbluteau.cashback.http.data.response.AlbumHttpResponse;
 import com.github.raphaelbluteau.cashback.usecase.AlbumUseCase;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
@@ -18,11 +18,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,7 +40,7 @@ public class AlbumControllerTest {
     AlbumUseCase albumUseCase;
 
     @MockBean
-    AlbumHttpResponseConverter albumHttpResponseConverter;
+    AlbumConverter albumConverter;
 
     @Autowired
     Environment env;
@@ -73,7 +75,7 @@ public class AlbumControllerTest {
     	
     	Mockito.when(albumUseCase.getAlbumsByGenre(any(GenreEnum.class), any(Pageable.class)))
     		.thenReturn(albumsPage);
-    	Mockito.when(albumHttpResponseConverter.toResponse(any(Page.class)))
+    	Mockito.when(albumConverter.toResponse(any(Page.class)))
     		.thenReturn(responsePage);
 
     	mockMvc.perform(get("/albums").param("genre", "ROCK"))
@@ -89,7 +91,7 @@ public class AlbumControllerTest {
 
         Mockito.when(albumUseCase.findById(anyLong())).thenReturn(album);
         
-        Mockito.when(albumHttpResponseConverter.toResponse(album))
+        Mockito.when(albumConverter.toResponse(album))
         	.thenReturn(albumHttpResponse);
 
         mockMvc.perform(get("/albums/1"))

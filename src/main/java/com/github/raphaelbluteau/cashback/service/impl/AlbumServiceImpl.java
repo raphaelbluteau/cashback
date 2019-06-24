@@ -1,9 +1,9 @@
 package com.github.raphaelbluteau.cashback.service.impl;
 
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import com.github.raphaelbluteau.cashback.gateway.repository.AlbumRepository;
 import com.github.raphaelbluteau.cashback.service.AlbumService;
-import com.github.raphaelbluteau.cashback.service.converter.AlbumServiceConverter;
 import com.github.raphaelbluteau.cashback.service.data.Album;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,7 +18,7 @@ import java.util.Optional;
 public class AlbumServiceImpl implements AlbumService {
 
     private final AlbumRepository albumRepository;
-    private final AlbumServiceConverter albumConverter;
+    private final AlbumConverter albumConverter;
 
 
     @Override

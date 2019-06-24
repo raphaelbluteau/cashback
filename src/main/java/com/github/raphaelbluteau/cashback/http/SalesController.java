@@ -1,11 +1,11 @@
 package com.github.raphaelbluteau.cashback.http;
 
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.converter.SaleConverter;
 import com.github.raphaelbluteau.cashback.exceptions.data.ResourceNotFoundException;
-import com.github.raphaelbluteau.cashback.http.converter.SalesHttpResponseConverter;
 import com.github.raphaelbluteau.cashback.http.data.request.AlbumHttpRequest;
 import com.github.raphaelbluteau.cashback.http.data.response.SaleHttpResponse;
 import com.github.raphaelbluteau.cashback.usecase.SalesUseCase;
-import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,27 +23,27 @@ import java.util.List;
 public class SalesController {
 
     private final SalesUseCase salesUseCase;
-    private final SalesHttpResponseConverter salesHttpResponseConverter;
+    private final SaleConverter saleConverter;
     private final AlbumConverter albumConverter;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public SaleHttpResponse order(@RequestBody @Valid List<AlbumHttpRequest> request) throws ResourceNotFoundException {
 
-        return salesHttpResponseConverter.toResponse(salesUseCase.sale(albumConverter.toUseCaseRequest(request)));
+        return saleConverter.toResponse(salesUseCase.sale(albumConverter.toUseCaseRequest(request)));
     }
 
     @GetMapping
     public Page<SaleHttpResponse> getOrders(Pageable pageable, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime begin,
                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
 
-        return salesHttpResponseConverter.toResponse(salesUseCase.findByPeriod(pageable, begin, end));
+        return saleConverter.toResponse(salesUseCase.findByPeriod(pageable, begin, end));
     }
 
     @GetMapping("/{id}")
     public SaleHttpResponse getOrder(@PathVariable Long id) throws ResourceNotFoundException {
 
-        return salesHttpResponseConverter.toResponse(salesUseCase.findById(id));
+        return saleConverter.toResponse(salesUseCase.findById(id));
     }
 
 }

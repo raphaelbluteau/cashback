@@ -1,5 +1,6 @@
 package com.github.raphaelbluteau.cashback.listeners;
 
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import com.github.raphaelbluteau.cashback.exceptions.data.GatewayException;
 import com.github.raphaelbluteau.cashback.exceptions.data.SpotifyAuthException;
@@ -9,7 +10,6 @@ import com.github.raphaelbluteau.cashback.gateway.repository.SaleRepository;
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.CashbackParametersEntity;
 import com.github.raphaelbluteau.cashback.usecase.AlbumUseCase;
 import com.github.raphaelbluteau.cashback.usecase.AuthorizationUseCase;
-import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;

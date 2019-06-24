@@ -1,11 +1,12 @@
 package com.github.raphaelbluteau.cashback.usecase.converter.impl;
 
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.converter.ArtistConverter;
+import com.github.raphaelbluteau.cashback.converter.impl.AlbumConverterImpl;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatewayItem;
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.AlbumEntity;
 import com.github.raphaelbluteau.cashback.http.data.request.AlbumHttpRequest;
-import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
-import com.github.raphaelbluteau.cashback.usecase.converter.ArtistConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.request.AlbumRequest;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import org.assertj.core.api.Assertions;
@@ -20,8 +21,6 @@ import org.springframework.data.domain.PageImpl;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
 public class AlbumConverterImplTest {

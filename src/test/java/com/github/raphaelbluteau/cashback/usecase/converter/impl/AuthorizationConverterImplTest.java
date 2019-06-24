@@ -1,7 +1,8 @@
 package com.github.raphaelbluteau.cashback.usecase.converter.impl;
 
+import com.github.raphaelbluteau.cashback.converter.AuthorizationConverter;
+import com.github.raphaelbluteau.cashback.converter.impl.AuthorizationConverterImpl;
 import com.github.raphaelbluteau.cashback.gateway.data.response.AuthorizationGatewayResponse;
-import com.github.raphaelbluteau.cashback.usecase.converter.AuthorizationConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Authorization;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -34,7 +35,7 @@ public class AuthorizationConverterImplTest {
     @Test
     public void testToResponseNull() {
 
-        Assertions.assertThat(authorizationConverter.toResponse(null)).isNull();
+        Assertions.assertThat(authorizationConverter.toResponse((AuthorizationGatewayResponse) null)).isNull();
     }
 
     private AuthorizationGatewayResponse getGatewayResponse() {

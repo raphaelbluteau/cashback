@@ -1,10 +1,11 @@
 package com.github.raphaelbluteau.cashback.usecase.converter.impl;
 
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.converter.SoldItemConverter;
+import com.github.raphaelbluteau.cashback.converter.impl.SoldItemConverterImpl;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.AlbumEntity;
 import com.github.raphaelbluteau.cashback.gateway.repository.entity.SoldItemEntity;
-import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
-import com.github.raphaelbluteau.cashback.usecase.converter.SoldItemConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import com.github.raphaelbluteau.cashback.usecase.data.response.SoldItem;
 import org.assertj.core.api.Assertions;

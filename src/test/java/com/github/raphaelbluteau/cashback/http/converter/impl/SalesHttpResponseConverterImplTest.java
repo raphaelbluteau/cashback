@@ -1,7 +1,8 @@
 package com.github.raphaelbluteau.cashback.http.converter.impl;
 
-import com.github.raphaelbluteau.cashback.http.converter.SalesHttpResponseConverter;
-import com.github.raphaelbluteau.cashback.http.converter.SoldItemHttpResponseConverter;
+import com.github.raphaelbluteau.cashback.converter.SaleConverter;
+import com.github.raphaelbluteau.cashback.converter.SoldItemConverter;
+import com.github.raphaelbluteau.cashback.converter.impl.SaleConverterImpl;
 import com.github.raphaelbluteau.cashback.http.data.response.SaleHttpResponse;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Sale;
 import com.github.raphaelbluteau.cashback.usecase.data.response.SoldItem;
@@ -19,14 +20,12 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
-
 @RunWith(SpringRunner.class)
 public class SalesHttpResponseConverterImplTest {
 
-    private SalesHttpResponseConverter salesHttpResponseConverter;
+    private SaleConverter saleConverter;
     @MockBean
-    private SoldItemHttpResponseConverter soldItemHttpResponseConverter;
+    private SoldItemConverter soldItemConverter;
     private Sale sale;
 
     @Before
@@ -39,20 +38,20 @@ public class SalesHttpResponseConverterImplTest {
                 .items(Collections.singletonList(SoldItem.builder().build()))
                 .build();
 
-        salesHttpResponseConverter = new SalesHttpResponseConverterImpl(soldItemHttpResponseConverter);
+        saleConverter = new SaleConverterImpl(soldItemConverter);
     }
 
     @Test
     public void toResponse() {
 
-        SaleHttpResponse result = salesHttpResponseConverter.toResponse(sale);
+        SaleHttpResponse result = saleConverter.toResponse(sale);
 
         Assertions.assertThat(result).isNotNull();
         Assertions.assertThat(result.getId()).isEqualTo(30);
         Assertions.assertThat(result.getCashback()).isEqualByComparingTo(BigDecimal.TEN);
         Assertions.assertThat(result.getCreatedAt()).isEqualTo(LocalDateTime.of(2019, 1, 31, 12, 0));
 
-        Assertions.assertThat(salesHttpResponseConverter.toResponse((Sale) null)).isNull();
+        Assertions.assertThat(saleConverter.toResponse((Sale) null)).isNull();
 
     }
 
@@ -61,7 +60,7 @@ public class SalesHttpResponseConverterImplTest {
 
         Page<Sale> pageUseCase = new PageImpl<>(Collections.singletonList(sale));
 
-        Page<SaleHttpResponse> result = salesHttpResponseConverter.toResponse(pageUseCase);
+        Page<SaleHttpResponse> result = saleConverter.toResponse(pageUseCase);
 
         Assertions.assertThat(result).isNotNull();
         Optional<SaleHttpResponse> optionalSaleResponse = result.get().findFirst();
@@ -72,6 +71,6 @@ public class SalesHttpResponseConverterImplTest {
         Assertions.assertThat(saleResponse.getCashback()).isEqualByComparingTo(BigDecimal.TEN);
         Assertions.assertThat(saleResponse.getCreatedAt()).isEqualTo(LocalDateTime.of(2019, 1, 31, 12, 0));
 
-        Assertions.assertThat(salesHttpResponseConverter.toResponse(Page.empty())).isEmpty();
+        Assertions.assertThat(saleConverter.toResponse(Page.empty())).isEmpty();
     }
 }

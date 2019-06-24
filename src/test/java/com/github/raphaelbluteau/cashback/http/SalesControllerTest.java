@@ -1,14 +1,14 @@
 package com.github.raphaelbluteau.cashback.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.converter.SaleConverter;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
-import com.github.raphaelbluteau.cashback.http.converter.SalesHttpResponseConverter;
 import com.github.raphaelbluteau.cashback.http.data.request.AlbumHttpRequest;
 import com.github.raphaelbluteau.cashback.http.data.response.AlbumHttpResponse;
 import com.github.raphaelbluteau.cashback.http.data.response.SaleHttpResponse;
 import com.github.raphaelbluteau.cashback.http.data.response.SoldItemHttpResponse;
 import com.github.raphaelbluteau.cashback.usecase.SalesUseCase;
-import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Sale;
 import com.github.raphaelbluteau.cashback.usecase.data.response.SoldItem;
@@ -54,7 +54,7 @@ public class SalesControllerTest {
     AlbumConverter albumConverter;
 
     @MockBean
-    SalesHttpResponseConverter salesHttpResponseConverter;
+    SaleConverter saleConverter;
 
     private List<AlbumHttpRequest> albumsRequest;
     private Page<SaleHttpResponse> salesPageHttpResponse;
@@ -89,7 +89,7 @@ public class SalesControllerTest {
 
         Mockito.when(salesUseCase.findByPeriod(any(Pageable.class), any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(salesPageUseCase);
-        Mockito.when(salesHttpResponseConverter.toResponse(any(Page.class)))
+        Mockito.when(saleConverter.toResponse(any(Page.class)))
                 .thenReturn(salesPageHttpResponse);
 
         mockMvc.perform(get("/orders")
@@ -119,7 +119,7 @@ public class SalesControllerTest {
     public void testGetOrder() throws Exception {
 
         Mockito.when(salesUseCase.findById(anyLong())).thenReturn(getSale1());
-        Mockito.when(salesHttpResponseConverter.toResponse(any(Sale.class)))
+        Mockito.when(saleConverter.toResponse(any(Sale.class)))
                 .thenReturn(getSaleHttpResponse1());
 
         mockMvc.perform(get("/orders/1"))

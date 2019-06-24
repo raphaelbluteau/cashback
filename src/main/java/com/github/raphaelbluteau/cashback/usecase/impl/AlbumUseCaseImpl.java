@@ -1,5 +1,6 @@
 package com.github.raphaelbluteau.cashback.usecase.impl;
 
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import com.github.raphaelbluteau.cashback.exceptions.data.GatewayException;
 import com.github.raphaelbluteau.cashback.exceptions.data.ResourceNotFoundException;
@@ -10,7 +11,6 @@ import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayIte
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayResponse;
 import com.github.raphaelbluteau.cashback.service.AlbumService;
 import com.github.raphaelbluteau.cashback.usecase.AlbumUseCase;
-import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
