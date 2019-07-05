@@ -1,5 +1,8 @@
 package com.github.raphaelbluteau.cashback.usecase.impl;
 
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.converter.ArtistConverter;
+import com.github.raphaelbluteau.cashback.converter.impl.AlbumConverterImpl;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import com.github.raphaelbluteau.cashback.exceptions.data.GatewayException;
 import com.github.raphaelbluteau.cashback.exceptions.data.SpotifyException;
@@ -12,9 +15,6 @@ import com.github.raphaelbluteau.cashback.gateway.impl.SpotifyGatewayImpl;
 import com.github.raphaelbluteau.cashback.service.AlbumService;
 import com.github.raphaelbluteau.cashback.service.impl.AlbumServiceImpl;
 import com.github.raphaelbluteau.cashback.usecase.AlbumUseCase;
-import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
-import com.github.raphaelbluteau.cashback.usecase.converter.ArtistConverter;
-import com.github.raphaelbluteau.cashback.usecase.converter.impl.AlbumConverterImpl;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;

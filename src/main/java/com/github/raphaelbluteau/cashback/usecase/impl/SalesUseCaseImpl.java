@@ -1,18 +1,20 @@
 package com.github.raphaelbluteau.cashback.usecase.impl;
 
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.converter.CashbackParametersConverter;
+import com.github.raphaelbluteau.cashback.converter.SaleConverter;
+import com.github.raphaelbluteau.cashback.converter.SoldItemConverter;
 import com.github.raphaelbluteau.cashback.exceptions.data.ResourceNotFoundException;
-import com.github.raphaelbluteau.cashback.gateway.repository.AlbumRepository;
-import com.github.raphaelbluteau.cashback.gateway.repository.CashbackParametersRepository;
-import com.github.raphaelbluteau.cashback.gateway.repository.SaleRepository;
-import com.github.raphaelbluteau.cashback.gateway.repository.SoldItemRepository;
-import com.github.raphaelbluteau.cashback.gateway.repository.entity.AlbumEntity;
-import com.github.raphaelbluteau.cashback.gateway.repository.entity.CashbackParametersEntity;
-import com.github.raphaelbluteau.cashback.gateway.repository.entity.SaleEntity;
-import com.github.raphaelbluteau.cashback.gateway.repository.entity.SoldItemEntity;
+import com.github.raphaelbluteau.cashback.service.AlbumService;
+import com.github.raphaelbluteau.cashback.service.CashbackParametersService;
+import com.github.raphaelbluteau.cashback.service.SaleService;
+import com.github.raphaelbluteau.cashback.service.SoldItemService;
+import com.github.raphaelbluteau.cashback.service.data.Album;
 import com.github.raphaelbluteau.cashback.usecase.SalesUseCase;
-import com.github.raphaelbluteau.cashback.usecase.converter.SaleConverter;
 import com.github.raphaelbluteau.cashback.usecase.data.request.AlbumRequest;
+import com.github.raphaelbluteau.cashback.usecase.data.response.CashbackParameters;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Sale;
+import com.github.raphaelbluteau.cashback.usecase.data.response.SoldItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,14 +28,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Objects.isNull;
+
 @Component
 @RequiredArgsConstructor
 public class SalesUseCaseImpl implements SalesUseCase {
 
-    private final AlbumRepository albumRepository;
-    private final CashbackParametersRepository cashbackParametersRepository;
-    private final SaleRepository saleRepository;
-    private final SoldItemRepository soldItemRepository;
+    private final AlbumService albumService;
+    private final SoldItemService soldItemService;
+    private final SaleService saleService;
+    private final CashbackParametersService cashbackParametersService;
+    private final CashbackParametersConverter cashbackParametersConverter;
+    private final SoldItemConverter soldItemConverter;
+    private final AlbumConverter albumConverter;
     private final SaleConverter saleConverter;
     private static final String ALBUM_NOT_FOUND_MESSAGE = "Album for id %s not found";
     private static final String ORDER_NOT_FOUND_MESSAGE = "Order for id %s not found";
@@ -42,51 +49,54 @@ public class SalesUseCaseImpl implements SalesUseCase {
     @Override
     public Sale sale(List<AlbumRequest> albumsRequest) throws ResourceNotFoundException {
 
-        List<AlbumEntity> albums = new ArrayList<>();
+        List<Album> albums = new ArrayList<>();
         for (AlbumRequest albumRequest : albumsRequest) {
-            Optional<AlbumEntity> optionalAlbumEntity = albumRepository.findById(albumRequest.getId());
+            Optional<Album> optionalAlbumEntity = albumService.findById(albumRequest.getId());
             albums.add(optionalAlbumEntity.orElseThrow(() ->
                     new ResourceNotFoundException(String.format(ALBUM_NOT_FOUND_MESSAGE, albumRequest.getId()))));
         }
 
         DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
-        SaleEntity sale = new SaleEntity();
-        List<SoldItemEntity> soldItems = new ArrayList<>();
+        Sale sale = new Sale();
+        List<SoldItem> soldItems = new ArrayList<>();
         albums.forEach(album -> {
-            CashbackParametersEntity cashbackParameters = cashbackParametersRepository
-                    .findByDayOfWeekAndGenre(dayOfWeek, album.getGenre());
+            CashbackParameters cashbackParameters = cashbackParametersConverter.toUseCase(cashbackParametersService.findByDayOfWeekAndGenre(
+                    dayOfWeek, album.getGenre()));
             BigDecimal cashback = (cashbackParameters.getPercentage()
                     .divide(BigDecimal.valueOf(100), RoundingMode.FLOOR))
                     .multiply(album.getPrice());
-            soldItems.add(SoldItemEntity.builder()
-                    .album(album)
+            soldItems.add(SoldItem.builder()
+                    .album(albumConverter.toUseCase(album))
                     .cashback(cashback.setScale(2, RoundingMode.CEILING))
                     .build());
         });
 
-        soldItemRepository.saveAll(soldItems);
+        soldItemService.saveAll(soldItemConverter.fromUseCase(soldItems));
 
         sale.setItems(soldItems);
 
-        sale.setCashback(sale.getItems().stream()
-                .map(SoldItemEntity::getCashback)
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
+        final BigDecimal[] cashback = {BigDecimal.ZERO};
+        sale.getItems().forEach(item -> cashback[0] = cashback[0].add(item.getCashback()));
+        sale.setCashback(cashback[0]);
 
-        return saleConverter.toUseCase(saleRepository.save(sale));
+        return saleConverter.toUseCase(saleService.makeSale(saleConverter.fromUseCase(sale)));
     }
 
     @Override
     public Page<Sale> findByPeriod(Pageable pageable, LocalDateTime begin, LocalDateTime end) {
 
-        return saleConverter.toUseCase(saleRepository.findByCreatedAtGreaterThanEqualAndCreatedAtLessThanEqualOrderByCreatedAtDesc(begin, end, pageable));
+        return saleConverter.toUseCasePage(saleService.findByPeriod(pageable, begin, end));
     }
 
     @Override
     public Sale findById(Long id) throws ResourceNotFoundException {
 
-        Optional<SaleEntity> optionalSaleEntity = saleRepository.findById(id);
+        Sale sale = saleConverter.toUseCase(saleService.findById(id));
 
-        return saleConverter.toUseCase(optionalSaleEntity.orElseThrow(() ->
-                new ResourceNotFoundException(String.format(ORDER_NOT_FOUND_MESSAGE, String.valueOf(id)))));
+        if (isNull(sale)) {
+            new ResourceNotFoundException(String.format(ORDER_NOT_FOUND_MESSAGE, String.valueOf(id)));
+        }
+
+        return sale;
     }
 }

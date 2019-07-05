@@ -1,26 +1,19 @@
 package com.github.raphaelbluteau.cashback.usecase.impl;
 
+import com.github.raphaelbluteau.cashback.converter.*;
+import com.github.raphaelbluteau.cashback.converter.impl.*;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import com.github.raphaelbluteau.cashback.exceptions.data.ResourceNotFoundException;
-import com.github.raphaelbluteau.cashback.gateway.repository.AlbumRepository;
-import com.github.raphaelbluteau.cashback.gateway.repository.CashbackParametersRepository;
-import com.github.raphaelbluteau.cashback.gateway.repository.SaleRepository;
-import com.github.raphaelbluteau.cashback.gateway.repository.SoldItemRepository;
-import com.github.raphaelbluteau.cashback.gateway.repository.entity.AlbumEntity;
-import com.github.raphaelbluteau.cashback.gateway.repository.entity.CashbackParametersEntity;
-import com.github.raphaelbluteau.cashback.gateway.repository.entity.SaleEntity;
-import com.github.raphaelbluteau.cashback.gateway.repository.entity.SoldItemEntity;
+import com.github.raphaelbluteau.cashback.service.AlbumService;
+import com.github.raphaelbluteau.cashback.service.CashbackParametersService;
+import com.github.raphaelbluteau.cashback.service.SaleService;
+import com.github.raphaelbluteau.cashback.service.SoldItemService;
+import com.github.raphaelbluteau.cashback.service.data.Album;
+import com.github.raphaelbluteau.cashback.service.data.CashbackParameters;
+import com.github.raphaelbluteau.cashback.service.data.Sale;
+import com.github.raphaelbluteau.cashback.service.data.SoldItem;
 import com.github.raphaelbluteau.cashback.usecase.SalesUseCase;
-import com.github.raphaelbluteau.cashback.usecase.converter.AlbumConverter;
-import com.github.raphaelbluteau.cashback.usecase.converter.ArtistConverter;
-import com.github.raphaelbluteau.cashback.usecase.converter.SaleConverter;
-import com.github.raphaelbluteau.cashback.usecase.converter.SoldItemConverter;
-import com.github.raphaelbluteau.cashback.usecase.converter.impl.AlbumConverterImpl;
-import com.github.raphaelbluteau.cashback.usecase.converter.impl.SaleConverterImpl;
-import com.github.raphaelbluteau.cashback.usecase.converter.impl.SoldItemConverterImpl;
 import com.github.raphaelbluteau.cashback.usecase.data.request.AlbumRequest;
-import com.github.raphaelbluteau.cashback.usecase.data.response.Sale;
-import com.github.raphaelbluteau.cashback.usecase.data.response.SoldItem;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,50 +38,54 @@ import static org.mockito.BDDMockito.given;
 @RunWith(SpringRunner.class)
 public class SalesUseCaseImplTest {
 
-    private SalesUseCase salesUseCase;
     @MockBean
-    private AlbumRepository albumRepository;
+    private SaleService saleService;
     @MockBean
+    private SoldItemService soldItemService;
+    @MockBean
+    private AlbumService albumService;
+    @MockBean
+    private CashbackParametersService cashbackParametersService;
+    private CashbackParametersConverter cashbackParametersConverter;
+    private SoldItemConverter soldItemConverter;
+    private AlbumConverter albumConverter;
     private ArtistConverter artistConverter;
-    @MockBean
-    private CashbackParametersRepository cashbackParametersRepository;
-    @MockBean
-    private SaleRepository saleRepository;
-    @MockBean
-    private SoldItemRepository soldItemRepository;
-    private AlbumEntity albumEntity;
-    private CashbackParametersEntity cashbackParameters;
-    private SaleEntity saleEntity;
+    private SalesUseCase salesUseCase;
+    private Album album;
+    private CashbackParameters cashbackParameters;
+    private Sale sale;
 
     @Before
     public void setUp() {
 
+        artistConverter = new ArtistConverterImpl();
         AlbumConverter albumConverter = new AlbumConverterImpl(artistConverter);
         SoldItemConverter soldItemConverter = new SoldItemConverterImpl(albumConverter);
         SaleConverter saleConverter = new SaleConverterImpl(soldItemConverter);
-        salesUseCase = new SalesUseCaseImpl(albumRepository, cashbackParametersRepository,
-                saleRepository, soldItemRepository, saleConverter);
+        cashbackParametersConverter = new CashbackParametersConverterImpl();
+        salesUseCase = new SalesUseCaseImpl(albumService, soldItemService, saleService, cashbackParametersService,
+                cashbackParametersConverter, soldItemConverter, albumConverter, saleConverter);
 
-        albumEntity = AlbumEntity.builder()
-                .id(1L)
+        album = Album.builder()
+                .id("1")
                 .name("Album Lorem")
                 .price(BigDecimal.TEN)
                 .genre(GenreEnum.ROCK)
                 .build();
 
-        cashbackParameters = CashbackParametersEntity.builder()
+        cashbackParameters = CashbackParameters.builder()
                 .dayOfWeek(LocalDateTime.now().getDayOfWeek())
                 .genre(GenreEnum.ROCK)
                 .id(50L)
                 .percentage(BigDecimal.valueOf(20))
                 .build();
 
-        saleEntity = SaleEntity.builder()
+        sale = Sale.builder()
                 .id(10L)
                 .cashback(BigDecimal.valueOf(20))
-                .items(Collections.singletonList(SoldItemEntity.builder()
+                .items(Collections.singletonList(SoldItem.builder()
                         .id(5L)
-                        .album(albumEntity)
+                        .album(album)
                         .cashback(BigDecimal.valueOf(20))
                         .build()))
                 .createdAt(LocalDateTime.of(2019, 1, 31, 12, 0))
@@ -98,25 +95,26 @@ public class SalesUseCaseImplTest {
     @Test
     public void testSale() throws ResourceNotFoundException {
 
-        given(albumRepository.findById(anyLong())).willReturn(Optional.of(albumEntity));
-        given(cashbackParametersRepository.findByDayOfWeekAndGenre(any(DayOfWeek.class), any(GenreEnum.class)))
+        given(albumService.findById(anyLong())).willReturn(Optional.of(album));
+        given(cashbackParametersService.findByDayOfWeekAndGenre(any(DayOfWeek.class), any(GenreEnum.class)))
                 .willReturn(cashbackParameters);
-        given(saleRepository.save(any(SaleEntity.class))).willReturn(saleEntity);
+        given(saleService.makeSale(any(Sale.class))).willReturn(sale);
 
         List<AlbumRequest> albumsRequest = Collections.singletonList(AlbumRequest.builder()
-                .id(albumEntity.getId())
-                .name(albumEntity.getName())
+                .id(Long.valueOf(album.getId()))
+                .name(album.getName())
                 .price(BigDecimal.valueOf(100))
                 .build());
 
-        Sale result = salesUseCase.sale(albumsRequest);
+        com.github.raphaelbluteau.cashback.usecase.data.response.Sale result = salesUseCase.sale(albumsRequest);
 
         Assertions.assertThat(result).isNotNull();
         Assertions.assertThat(result.getId()).isEqualTo(10);
         Assertions.assertThat(result.getCashback()).isLessThanOrEqualTo(BigDecimal.valueOf(20));
         Assertions.assertThat(result.getCreatedAt()).isEqualTo(LocalDateTime.of(2019, 1, 31, 12, 0));
         Assertions.assertThat(result.getItems()).isNotEmpty();
-        SoldItem soldItem = result.getItems().iterator().next();
+        com.github.raphaelbluteau.cashback.usecase.data.response.SoldItem soldItem =
+                result.getItems().iterator().next();
         Assertions.assertThat(soldItem).isNotNull();
         Assertions.assertThat(soldItem.getId()).isEqualTo(5);
         Assertions.assertThat(soldItem.getCashback()).isLessThanOrEqualTo(BigDecimal.valueOf(20));
@@ -129,32 +127,36 @@ public class SalesUseCaseImplTest {
     @Test
     public void testFindByPeriod() {
 
-        Page<SaleEntity> pageResult = new PageImpl<>(Collections.singletonList(saleEntity));
+        Page<Sale> pageResult = new PageImpl<>(Collections.singletonList(sale));
 
-        given(saleRepository.findByCreatedAtGreaterThanEqualAndCreatedAtLessThanEqualOrderByCreatedAtDesc(any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
+        given(saleService.findByPeriod(any(Pageable.class), any(LocalDateTime.class), any(LocalDateTime.class)))
                 .willReturn(pageResult);
 
         LocalDateTime begin = LocalDateTime.of(2019, 1, 31, 12, 0);
         LocalDateTime end = LocalDateTime.now();
-        Page<Sale> result = salesUseCase.findByPeriod(Pageable.unpaged(), begin, end);
+        Page<com.github.raphaelbluteau.cashback.usecase.data.response.Sale> result =
+                salesUseCase.findByPeriod(Pageable.unpaged(), begin, end);
 
         Assertions.assertThat(result).isNotNull();
-        Optional<Sale> optionalSale = result.get().findFirst();
+        Optional<com.github.raphaelbluteau.cashback.usecase.data.response.Sale> optionalSale =
+                result.get().findFirst();
         Assertions.assertThat(optionalSale.isPresent()).isTrue();
     }
 
     @Test
     public void testFindById() throws ResourceNotFoundException {
 
-        given(saleRepository.findById(anyLong())).willReturn(Optional.of(saleEntity));
+        given(saleService.findById(anyLong())).willReturn(sale);
 
-        Sale result = salesUseCase.findById(1L);
+        com.github.raphaelbluteau.cashback.usecase.data.response.Sale result =
+                salesUseCase.findById(1L);
         Assertions.assertThat(result).isNotNull();
         Assertions.assertThat(result.getId()).isEqualTo(10);
         Assertions.assertThat(result.getCashback()).isLessThanOrEqualTo(BigDecimal.valueOf(20));
         Assertions.assertThat(result.getCreatedAt()).isEqualTo(LocalDateTime.of(2019, 1, 31, 12, 0));
         Assertions.assertThat(result.getItems()).isNotEmpty();
-        SoldItem soldItem = result.getItems().iterator().next();
+        com.github.raphaelbluteau.cashback.usecase.data.response.SoldItem soldItem =
+                result.getItems().iterator().next();
         Assertions.assertThat(soldItem).isNotNull();
         Assertions.assertThat(soldItem.getId()).isEqualTo(5);
         Assertions.assertThat(soldItem.getCashback()).isLessThanOrEqualTo(BigDecimal.valueOf(20));

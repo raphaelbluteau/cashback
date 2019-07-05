@@ -1,7 +1,9 @@
 package com.github.raphaelbluteau.cashback.http.converter.impl;
 
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.converter.ArtistConverter;
+import com.github.raphaelbluteau.cashback.converter.impl.AlbumConverterImpl;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
-import com.github.raphaelbluteau.cashback.http.converter.AlbumHttpResponseConverter;
 import com.github.raphaelbluteau.cashback.http.data.response.AlbumHttpResponse;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
 import org.assertj.core.api.Assertions;
@@ -9,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
@@ -20,7 +23,9 @@ import java.util.Optional;
 public class AlbumHttpResponseConverterImplTest {
 
     private Album album;
-    private AlbumHttpResponseConverter albumHttpResponseConverter;
+    @MockBean
+    private ArtistConverter artistConverter;
+    private AlbumConverter albumConverter;
 
     @Before
     public void setUp() {
@@ -33,14 +38,14 @@ public class AlbumHttpResponseConverterImplTest {
                 .artists(Collections.emptyList())
                 .build();
 
-        albumHttpResponseConverter = new AlbumHttpResponseConverterImpl();
+        albumConverter = new AlbumConverterImpl(artistConverter);
     }
 
     @Test
     public void testToPageResponse() {
 
         Page<Album> useCasePage = new PageImpl<>(Collections.singletonList(album));
-        Page<AlbumHttpResponse> results = albumHttpResponseConverter.toResponse(useCasePage);
+        Page<AlbumHttpResponse> results = albumConverter.toResponse(useCasePage);
 
         Assertions.assertThat(results).isNotNull();
         Optional<AlbumHttpResponse> optionalAlbumResponse = results.get().findFirst();
@@ -52,13 +57,13 @@ public class AlbumHttpResponseConverterImplTest {
         Assertions.assertThat(albumResponse.getGenre()).isEqualTo(GenreEnum.POP);
         Assertions.assertThat(albumResponse.getPrice()).isLessThanOrEqualTo(BigDecimal.TEN);
 
-        Assertions.assertThat(albumHttpResponseConverter.toResponse(Page.empty())).isEmpty();
+        Assertions.assertThat(albumConverter.toResponse(Page.empty())).isEmpty();
     }
 
     @Test
     public void testToResponse() {
 
-        AlbumHttpResponse result = albumHttpResponseConverter.toResponse(album);
+        AlbumHttpResponse result = albumConverter.toResponse(album);
 
         Assertions.assertThat(result).isNotNull();
         Assertions.assertThat(result.getId()).isEqualTo(10);
@@ -66,6 +71,6 @@ public class AlbumHttpResponseConverterImplTest {
         Assertions.assertThat(result.getGenre()).isEqualTo(GenreEnum.POP);
         Assertions.assertThat(result.getPrice()).isLessThanOrEqualTo(BigDecimal.TEN);
 
-        Assertions.assertThat(albumHttpResponseConverter.toResponse((Album) null)).isNull();
+        Assertions.assertThat(albumConverter.toResponse((Album) null)).isNull();
     }
 }

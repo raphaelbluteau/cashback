@@ -1,8 +1,9 @@
 package com.github.raphaelbluteau.cashback.http.converter.impl;
 
+import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
+import com.github.raphaelbluteau.cashback.converter.SoldItemConverter;
+import com.github.raphaelbluteau.cashback.converter.impl.SoldItemConverterImpl;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
-import com.github.raphaelbluteau.cashback.http.converter.AlbumHttpResponseConverter;
-import com.github.raphaelbluteau.cashback.http.converter.SoldItemHttpResponseConverter;
 import com.github.raphaelbluteau.cashback.http.data.response.AlbumHttpResponse;
 import com.github.raphaelbluteau.cashback.http.data.response.SoldItemHttpResponse;
 import com.github.raphaelbluteau.cashback.usecase.data.response.Album;
@@ -24,13 +25,14 @@ import static org.mockito.ArgumentMatchers.any;
 @RunWith(SpringRunner.class)
 public class SoldItemHttpResponseConverterImplTest {
 
-    private SoldItemHttpResponseConverter soldItemHttpResponseConverter;
+    private SoldItemConverter soldItemConverter;
     @MockBean
-    private AlbumHttpResponseConverter albumHttpResponseConverter;
+    private AlbumConverter albumConverter;
 
     @Before
     public void setUp() {
-        soldItemHttpResponseConverter = new SoldItemHttpResponseConverterImpl(albumHttpResponseConverter);
+        soldItemConverter = new SoldItemConverterImpl(albumConverter) {
+        };
     }
 
     @Test
@@ -57,9 +59,9 @@ public class SoldItemHttpResponseConverterImplTest {
                 .name(album.getName())
                 .build();
 
-        Mockito.when(albumHttpResponseConverter.toResponse(any(Album.class))).thenReturn(albumHttpResponse);
+        Mockito.when(albumConverter.toResponse(any(Album.class))).thenReturn(albumHttpResponse);
 
-        List<SoldItemHttpResponse> result = soldItemHttpResponseConverter.toResponse(soldItems);
+        List<SoldItemHttpResponse> result = soldItemConverter.toResponse(soldItems);
 
         Assertions.assertThat(result).isNotNull();
         Assertions.assertThat(result).isNotEmpty();
@@ -73,7 +75,7 @@ public class SoldItemHttpResponseConverterImplTest {
         Assertions.assertThat(soldItem.getAlbum().getGenre()).isEqualTo(GenreEnum.CLASSIC);
         Assertions.assertThat(soldItem.getAlbum().getName()).isEqualToIgnoringCase("Album Ipsum");
 
-        Assertions.assertThat(soldItemHttpResponseConverter.toResponse(null)).isEmpty();
-        Assertions.assertThat(soldItemHttpResponseConverter.toResponse(Collections.singletonList(null)).iterator().next()).isNull();
+        Assertions.assertThat(soldItemConverter.toResponse(null)).isEmpty();
+        Assertions.assertThat(soldItemConverter.toResponse(Collections.singletonList(null)).iterator().next()).isNull();
     }
 }
