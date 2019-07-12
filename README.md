@@ -11,6 +11,11 @@ To build and run the project, use Gradle:
 gradle bootRun
 ```
 
+If you feel the need to run this application without hitting Spotify API for test purposes, you can use the mock profile:
+```sh
+gradle bootRun -Dspring.profiles.active=mock
+```
+
 ## Endpoints usage examples:
 
 ### Getting albums by genre

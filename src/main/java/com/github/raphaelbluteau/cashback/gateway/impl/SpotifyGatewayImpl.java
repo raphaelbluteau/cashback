@@ -12,6 +12,7 @@ import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayRes
 import com.github.raphaelbluteau.cashback.gateway.data.response.AuthorizationGatewayResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -26,6 +27,7 @@ import java.util.Objects;
 @Component
 @Log
 @RequiredArgsConstructor
+@Profile("live")
 public class SpotifyGatewayImpl implements SpotifyGateway {
 
     final SpotifyConfigurationProperties properties;
