@@ -44,6 +44,11 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+bootRun {
+	String activeProfile =  System.properties['spring.profiles.active']
+	systemProperty "spring.profiles.active", activeProfile
+}
+
 jacocoTestReport {
 	reports {
 		xml {
@@ -58,7 +63,7 @@ jacocoTestReport {
 	afterEvaluate {
 		classDirectories = files(classDirectories.files.collect {
 			fileTree(dir: it,
-					exclude: ['**/data/**','**/entity/**', '**/enums/**', '**/config/**'])
+					exclude: ['**/data/**','**/entity/**', '**/enums/**', '**/config/**', '**/SpotifyGatewayMockImpl**'])
 		})
 	}
 }
