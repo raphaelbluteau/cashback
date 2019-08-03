@@ -5,6 +5,7 @@ import com.github.raphaelbluteau.cashback.converter.ArtistConverter;
 import com.github.raphaelbluteau.cashback.converter.impl.AlbumConverterImpl;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import com.github.raphaelbluteau.cashback.exceptions.data.GatewayException;
+import com.github.raphaelbluteau.cashback.exceptions.data.ResourceNotFoundException;
 import com.github.raphaelbluteau.cashback.exceptions.data.SpotifyException;
 import com.github.raphaelbluteau.cashback.gateway.SpotifyGateway;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatewayItem;
@@ -30,6 +31,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 
@@ -84,7 +86,27 @@ public class AlbumUseCaseImplTest {
     }
 
     @Test
-    public void findById() {
+    public void findById() throws ResourceNotFoundException {
+
+        Mockito.when(albumService.findById(anyLong())).thenReturn(Optional.of(getAlbum()));
+
+        Album album = albumUseCase.findById(1L);
+        Assertions.assertThat(album).isNotNull();
+        Assertions.assertThat(album.getId()).isEqualTo("1");
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void findByIdResourceNotFoundException() throws ResourceNotFoundException {
+        albumUseCase.findById(1L);
+    }
+
+    private com.github.raphaelbluteau.cashback.service.data.Album getAlbum() {
+        return com.github.raphaelbluteau.cashback.service.data.Album.builder()
+                .id("1")
+                .name("Lorem ipsum")
+                .price(BigDecimal.TEN)
+                .genre(GenreEnum.POP)
+                .build();
     }
 
     private Page<com.github.raphaelbluteau.cashback.service.data.Album> getPage() {
