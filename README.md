@@ -8,12 +8,18 @@ This Spring Boot API collects some data from Spotify Web API and provides endpoi
 
 To build and run the project, use Gradle:
 ```sh
-gradle bootRun
+gradlew bootRun
 ```
 
 If you feel the need to run this application without hitting Spotify API for test purposes, you can use the mock profile:
 ```sh
-gradle bootRun -Dspring.profiles.active=mock
+gradlew bootRun -Dspring.profiles.active=mock
+```
+
+You can also run the project in a Docker container:
+```sh
+gradlew docker
+docker run -p 8080:8080 com.github.raphaelbluteau/cashback
 ```
 
 ## Endpoints usage examples:
