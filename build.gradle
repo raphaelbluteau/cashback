@@ -12,6 +12,7 @@ buildscript {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath("net.saliman:gradle-cobertura-plugin:2.6.0")
 		classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.2")
+		classpath("gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.13.0")
 	}
 }
 
@@ -30,6 +31,20 @@ apply plugin: 'com.github.kt3k.coveralls'
 group = 'com.github.raphaelbluteau'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
+
+apply plugin: 'com.palantir.docker'
+
+task unpack(type: Copy) {
+	dependsOn bootJar
+	from(zipTree(tasks.bootJar.outputs.files.singleFile))
+	into("build/dependency")
+}
+
+docker {
+	name "${project.group}/${bootJar.archiveBaseName.getOrElse('cashback')}"
+	copySpec.from(tasks.unpack.outputs).into("dependency")
+	buildArgs(['DEPENDENCY': "dependency"])
+}
 
 repositories {
 	mavenCentral()
