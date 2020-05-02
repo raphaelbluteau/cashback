@@ -7,12 +7,12 @@ import com.github.raphaelbluteau.cashback.enums.GenreEnum;
 import com.github.raphaelbluteau.cashback.exceptions.data.GatewayException;
 import com.github.raphaelbluteau.cashback.exceptions.data.ResourceNotFoundException;
 import com.github.raphaelbluteau.cashback.exceptions.data.SpotifyException;
-import com.github.raphaelbluteau.cashback.gateway.SpotifyGateway;
+import com.github.raphaelbluteau.cashback.gateway.SpotifyClient;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatewayItem;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatewayResponse;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayItem;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayResponse;
-import com.github.raphaelbluteau.cashback.gateway.impl.SpotifyGatewayImpl;
+import com.github.raphaelbluteau.cashback.gateway.impl.SpotifyClientImpl;
 import com.github.raphaelbluteau.cashback.service.AlbumService;
 import com.github.raphaelbluteau.cashback.service.impl.AlbumServiceImpl;
 import com.github.raphaelbluteau.cashback.usecase.AlbumUseCase;
@@ -43,7 +43,7 @@ public class AlbumUseCaseImplTest {
     @Mock
     private AlbumService albumService;
     @Mock
-    private SpotifyGateway spotifyGateway;
+    private SpotifyClient spotifyClient;
     @Mock
     private ArtistConverter artistConverter;
 
@@ -51,16 +51,16 @@ public class AlbumUseCaseImplTest {
     public void setUp() throws Exception {
         AlbumConverter albumConverter = new AlbumConverterImpl(artistConverter);
         albumService = Mockito.mock(AlbumServiceImpl.class);
-        spotifyGateway = Mockito.mock(SpotifyGatewayImpl.class);
-        albumUseCase = new AlbumUseCaseImpl(spotifyGateway, albumService, albumConverter);
+        spotifyClient = Mockito.mock(SpotifyClientImpl.class);
+        albumUseCase = new AlbumUseCaseImpl(spotifyClient, albumService, albumConverter);
     }
 
     @Test
     public void getAlbumsByGenreFromGateway() throws SpotifyException, GatewayException {
 
-        Mockito.when(spotifyGateway.getAlbumsByArtist(anyString(), anyString(), anyInt()))
+        Mockito.when(spotifyClient.getAlbumsByArtist(anyString(), anyString(), anyInt()))
                 .thenReturn(getAlbumsResponse());
-        Mockito.when(spotifyGateway.getArtistByGenre(anyString(), any(GenreEnum.class), anyInt()))
+        Mockito.when(spotifyClient.getArtistByGenre(anyString(), any(GenreEnum.class), anyInt()))
                 .thenReturn(getArtistsResponse());
 
         List<Album> results = albumUseCase.getAlbumsByGenre("accessToken", GenreEnum.POP, 2);
