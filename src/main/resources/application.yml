@@ -36,10 +36,54 @@ error:
     internal_server_error: Ocorreu um erro desconhecido. Entre em contato com o administrador do sistema
     not_found: O recurso solicitado não foi encontrado
 
-logging:
-  level:
-    org:
-      springframework:
-        web:
-          client:
-            RestTemplate: DEBUG
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 5
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 5s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+      recordExceptions:
+        - com.github.raphaelbluteau.cashback.exceptions.data.SpotifyException
+        - com.github.raphaelbluteau.cashback.exceptions.data.SpotifyAuthException
+        - java.io.IOException
+
+  instances:
+    spotify:
+      baseConfig: default
+
+resilience4j.retry:
+  configs:
+    default:
+      maxRetryAttempts: 3
+      waitDuration: 100
+      retryExceptions:
+        - com.github.raphaelbluteau.cashback.exceptions.data.SpotifyException
+        - com.github.raphaelbluteau.cashback.exceptions.data.SpotifyAuthException
+        - java.io.IOException
+
+  instances:
+    spotify:
+      baseConfig: default
+
+resilience4j.bulkhead:
+  configs:
+    default:
+      maxConcurrentCalls: 100
+  instances:
+    spotify:
+      maxConcurrentCalls: 10
+
+resilience4j.thread-pool-bulkhead:
+  configs:
+    default:
+      maxThreadPoolSize: 4
+      coreThreadPoolSize: 2
+      queueCapacity: 2
+  instances:
+    spotify:
+      baseConfig: default

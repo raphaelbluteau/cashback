@@ -8,6 +8,9 @@ import com.github.raphaelbluteau.cashback.gateway.AuthRequests;
 import com.github.raphaelbluteau.cashback.gateway.data.response.AuthorizationGatewayResponse;
 import com.github.raphaelbluteau.cashback.gateway.data.response.SpotifyErrorResponse;
 import com.google.gson.Gson;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import okhttp3.Credentials;
 import org.springframework.stereotype.Component;
@@ -24,10 +27,14 @@ public class AuthClientImpl implements AuthClient {
     private final SpotifyConfigurationProperties properties;
     private final AuthRequests authRequests;
 
+    private static final String SPOTIFY = "spotify";
     private static final String CLIENT_ID = "client_id";
     private static final String CLIENT_SECRET = "client_secret";
     private static final String GRANT_TYPE = "grant_type";
 
+    @CircuitBreaker(name = SPOTIFY)
+    @Bulkhead(name = SPOTIFY)
+    @Retry(name = SPOTIFY)
     public String getAccessToken() throws GatewayException, SpotifyAuthException {
 
         Response<AuthorizationGatewayResponse> response;

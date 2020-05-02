@@ -11,6 +11,9 @@ import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayRes
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayResponseWrapper;
 import com.github.raphaelbluteau.cashback.gateway.data.response.SpotifyErrorResponse;
 import com.google.gson.Gson;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
@@ -37,6 +40,7 @@ public class SpotifyClientImpl implements SpotifyClient {
     private final SpotifyConfigurationProperties properties;
     private final SpotifyRequests spotifyRequests;
 
+    private static final String SPOTIFY = "spotify";
     private static final String QUERY = "q";
     private static final String GENRE_FILTER = "genre:%s";
     private static final String TYPE = "type";
@@ -46,6 +50,9 @@ public class SpotifyClientImpl implements SpotifyClient {
     private static final String MARKET = "market";
 
     @SneakyThrows
+    @CircuitBreaker(name = SPOTIFY)
+    @Bulkhead(name = SPOTIFY)
+    @Retry(name = SPOTIFY)
     public ArtistGatewayResponse getArtistByGenre(String accessToken, GenreEnum genre, Integer limit) {
 
         Map<String, String> options = new HashMap<>();
@@ -69,6 +76,9 @@ public class SpotifyClientImpl implements SpotifyClient {
     }
 
     @SneakyThrows
+    @CircuitBreaker(name = SPOTIFY)
+    @Bulkhead(name = SPOTIFY)
+    @Retry(name = SPOTIFY)
     public ArtistAlbumGatewayResponse getAlbumsByArtist(String accessToken, String artistId, Integer limit) {
 
         Map<String, String> options = new HashMap<>();

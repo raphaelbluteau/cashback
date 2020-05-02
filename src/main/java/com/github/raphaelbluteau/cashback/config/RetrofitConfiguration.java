@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.util.concurrent.TimeUnit;
+
 @Configuration
 public class RetrofitConfiguration {
 
@@ -39,6 +41,8 @@ public class RetrofitConfiguration {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         return new OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)
+                .connectTimeout(100L, TimeUnit.MILLISECONDS)
+                .readTimeout(1000L, TimeUnit.MILLISECONDS)
                 .build();
     }
 
