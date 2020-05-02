@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @ConfigurationProperties(prefix = "spotify.config")
-@Configuration("employeeProperties")
+@Configuration
 @Data
 public class SpotifyConfigurationProperties {
 

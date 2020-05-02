@@ -2,10 +2,8 @@ package com.github.raphaelbluteau.cashback.usecase.impl;
 
 import com.github.raphaelbluteau.cashback.converter.AlbumConverter;
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
-import com.github.raphaelbluteau.cashback.exceptions.data.GatewayException;
 import com.github.raphaelbluteau.cashback.exceptions.data.ResourceNotFoundException;
-import com.github.raphaelbluteau.cashback.exceptions.data.SpotifyException;
-import com.github.raphaelbluteau.cashback.gateway.SpotifyGateway;
+import com.github.raphaelbluteau.cashback.gateway.SpotifyClient;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatewayItem;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayItem;
 import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayResponse;
@@ -27,19 +25,18 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class AlbumUseCaseImpl implements AlbumUseCase {
 
-    private final SpotifyGateway spotifyGateway;
+    private final SpotifyClient spotifyClient;
     private final AlbumService albumService;
     private final AlbumConverter albumConverter;
     private static final String NOT_FOUND_MESSAGE = "Album for id %s not found";
 
     @Override
-    public List<Album> getAlbumsByGenre(String accessToken, GenreEnum genre, Integer limit) throws SpotifyException, GatewayException {
+    public List<Album> getAlbumsByGenre(String accessToken, GenreEnum genre, Integer limit) {
 
         List<ArtistAlbumGatewayItem> gatewayAlbums = new ArrayList<>();
-        ArtistGatewayResponse artistGatewayResponse = spotifyGateway.getArtistByGenre(accessToken, genre, limit);
+        ArtistGatewayResponse artistGatewayResponse = spotifyClient.getArtistByGenre(accessToken, genre, limit);
         for (ArtistGatewayItem artistGatewayItem : artistGatewayResponse.getItems()) {
-            gatewayAlbums.addAll(spotifyGateway
-                    .getAlbumsByArtist(accessToken, artistGatewayItem.getId(), 1).getItems());
+            gatewayAlbums.addAll(spotifyClient.getAlbumsByArtist(accessToken, artistGatewayItem.getId(), 1).getItems());
         }
 
         List<Album> albums = albumConverter.toUseCase(gatewayAlbums, genre);

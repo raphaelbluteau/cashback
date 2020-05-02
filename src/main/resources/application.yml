@@ -28,7 +28,7 @@ spotify:
     artistsUrl: https://api.spotify.com/v1/artists/
 
 albums:
-  limit: 50
+  limit: 2
 
 error:
   message:

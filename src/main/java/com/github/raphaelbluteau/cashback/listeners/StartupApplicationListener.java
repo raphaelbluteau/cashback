@@ -48,11 +48,11 @@ public class StartupApplicationListener implements
 
         String accessToken = null;
         try {
-            accessToken = authorizationUseCase.getAuthorization().getAccessToken();
+            accessToken = authorizationUseCase.getAuthorization();
         } catch (GatewayException | SpotifyAuthException e) {
             log.warning(e.getLocalizedMessage());
         }
-        String finalAccessToken = accessToken;
+        String finalAccessToken = String.format("Bearer %s", accessToken);
         genres.forEach(genre -> {
             try {
                 List<Album> albumsByGenre = albumUseCase.getAlbumsByGenre(finalAccessToken, genre, Integer.valueOf(env.getProperty("albums.limit", "50")));

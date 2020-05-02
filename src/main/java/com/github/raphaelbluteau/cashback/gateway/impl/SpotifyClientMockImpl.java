@@ -1,10 +1,11 @@
 package com.github.raphaelbluteau.cashback.gateway.impl;
 
 import com.github.raphaelbluteau.cashback.enums.GenreEnum;
-import com.github.raphaelbluteau.cashback.exceptions.data.GatewayException;
-import com.github.raphaelbluteau.cashback.exceptions.data.SpotifyException;
-import com.github.raphaelbluteau.cashback.gateway.SpotifyGateway;
-import com.github.raphaelbluteau.cashback.gateway.data.response.*;
+import com.github.raphaelbluteau.cashback.gateway.SpotifyClient;
+import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatewayItem;
+import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistAlbumGatewayResponse;
+import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayItem;
+import com.github.raphaelbluteau.cashback.gateway.data.response.ArtistGatewayResponse;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -14,19 +15,10 @@ import java.util.Random;
 
 @Component
 @Profile("mock")
-public class SpotifyGatewayMockImpl implements SpotifyGateway {
+public class SpotifyClientMockImpl implements SpotifyClient {
 
     @Override
-    public AuthorizationGatewayResponse getAuthorization() {
-        return AuthorizationGatewayResponse.builder()
-                .accessToken("accessToken")
-                .expiresIn(84600)
-                .tokenType("token_type")
-                .build();
-    }
-
-    @Override
-    public ArtistGatewayResponse getArtistByGenre(String accessToken, GenreEnum genre, Integer limit) throws SpotifyException, GatewayException {
+    public ArtistGatewayResponse getArtistByGenre(String accessToken, GenreEnum genre, Integer limit) {
 
         return ArtistGatewayResponse.builder()
                 .items(getArtist(limit))

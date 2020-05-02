@@ -8,8 +8,8 @@ public class SpotifyException extends Exception {
     private final String body;
     private final int code;
 
-    public SpotifyException(String message, Throwable cause, String body, int code) {
-        super(message, cause);
+    public SpotifyException(String message, String body, int code) {
+        super(message);
         this.body = body;
         this.code = code;
     }
